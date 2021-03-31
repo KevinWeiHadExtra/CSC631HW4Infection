@@ -625,4 +625,4 @@ ScriptsOnlyBuild:
   platform: 5
   scenePathNames:
   - Assets/Scenes/TicTac.unity
-  playerPath: C:/Users/purez/Desktop/Builds/mine/HW4.exe
+  playerPath: C:/Users/purez/Desktop/Builds/client branch/HW4.exe
