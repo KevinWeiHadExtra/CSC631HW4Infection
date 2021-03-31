@@ -17,6 +17,18 @@ public class Menu : MonoBehaviour
     private GameObject Player1Overlay;
     private GameObject Player2Overlay;
 
+    private GameObject Player1Input;
+    private GameObject Player2Input;
+
+    private GameObject Player1Submit;
+    private GameObject Player2Submit;
+
+    private GameObject Player1Ready;
+    private GameObject Player2Ready;
+
+    private GameObject Player1Leave;
+    private GameObject Player2Leave;
+
     private GameObject P1Turn;
     private GameObject P2Turn;
 
@@ -40,6 +52,18 @@ public class Menu : MonoBehaviour
         displayName1 = GameObject.Find("Name1");
         displayName2 = GameObject.Find("Name2");
 
+        Player1Input = GameObject.Find("Player1Input");
+        Player2Input = GameObject.Find("Player2Input");
+
+        Player1Submit = GameObject.Find("Player1Submit");
+        Player2Submit = GameObject.Find("Player2Submit");
+
+        Player1Ready = GameObject.Find("Player1Ready");
+        Player2Ready = GameObject.Find("Player2Ready");
+
+        Player1Leave = GameObject.Find("Player1Leave");
+        Player2Leave = GameObject.Find("Player2Leave");
+
         GameUI = GameObject.Find("GameUI");
         GameControl = GameObject.Find("GameControl");
         P1Turn = GameObject.Find("P1Turn");
@@ -58,8 +82,9 @@ public class Menu : MonoBehaviour
         networkManager = GameObject.Find("Network Manager").GetComponent<NetworkManager>();
         msgQueue = networkManager.GetComponent<MessageQueue>();
 
-        msgQueue.AddCallback(Constants.SMSG_LOGIN, OnResponseJoin);
-        msgQueue.AddCallback(Constants.SMSG_ENTERNAME, OnResponseSetName);
+        msgQueue.AddCallback(Constants.SMSG_LOGIN, OnResponseLogin);
+        msgQueue.AddCallback(Constants.SMSG_ENTERNAME, OnResponseEnterName);
+        msgQueue.AddCallback(Constants.SMSG_EXIT, OnResponseExit);
 
         GameUI.SetActive(false);
         P1Turn.SetActive(true);
@@ -80,7 +105,7 @@ public class Menu : MonoBehaviour
         }
     }
 
-    public void OnResponseJoin(ExtendedEventArgs eventArgs)
+    public void OnResponseLogin(ExtendedEventArgs eventArgs)
     {
         Debug.Log("Response join");
         ResponseLoginEventArgs args = eventArgs as ResponseLoginEventArgs;
@@ -148,7 +173,7 @@ public class Menu : MonoBehaviour
         networkManager.SendEnterNameRequest(p1Name);
     }
 
-    public void OnResponseSetName(ExtendedEventArgs eventArgs)
+    public void OnResponseEnterName(ExtendedEventArgs eventArgs)
     {
         Debug.Log("Response Set Name");
         
@@ -187,6 +212,50 @@ public class Menu : MonoBehaviour
         displayName2.SetActive(true);
         Debug.Log("Send SetNameReq: " + p2Name);
         networkManager.SendEnterNameRequest(p2Name);
+    }
+
+    public void OnLeave()
+    {
+        Debug.Log("Send LeaveReq");
+        networkManager.SendExitRequest();
+        Join.SetActive(true);
+        if (Constants.USER_ID == 1)
+        {
+            Player1Input.SetActive(true);
+            Player1Submit.SetActive(true);
+            displayName1.SetActive(false);
+            displayName1.GetComponent<Text>().text = "";
+        }
+        else
+        {
+            Player2Input.SetActive(true);
+            Player2Submit.SetActive(true);
+            displayName2.SetActive(false);
+            displayName2.GetComponent<Text>().text = "";
+        }
+        Player1Overlay.SetActive(false);
+        Player2Overlay.SetActive(false);
+    }
+
+    public void OnResponseExit(ExtendedEventArgs eventArgs)
+    {
+        ResponseExitEventArgs args = eventArgs as ResponseExitEventArgs;
+        if (args.user_id != Constants.USER_ID)
+        {
+            if (args.user_id != Constants.USER_ID)
+            {
+                if (args.user_id == 1)
+                {
+                    displayName1.SetActive(false);
+                    displayName1.GetComponent<Text>().text = "";
+                }
+                else
+                {
+                    displayName2.SetActive(false);
+                    displayName2.GetComponent<Text>().text = "";
+                }
+            }
+        }
     }
 
     void setGameUI()
