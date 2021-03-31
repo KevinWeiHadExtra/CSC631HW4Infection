@@ -14,6 +14,14 @@ public class Constants
 	public static readonly short SMSG_SETNAME = 203;
 	public static readonly short CMSG_READY = 104;
 	public static readonly short SMSG_READY = 204;
+	public static readonly short CMSG_LOGIN = 101;
+	public static readonly short SMSG_LOGIN = 201;
+	public static readonly short CMSG_EXIT = 102;
+	public static readonly short SMSG_EXIT = 202;
+	public static readonly short CMSG_ENTERNAME = 103;
+	public static readonly short SMSG_ENTERNAME = 203;
+	public static readonly short CMSG_CONFIRM = 104;
+	public static readonly short SMSG_CONFIRM = 204;
 	public static readonly short CMSG_MOVE = 105;
 	public static readonly short SMSG_MOVE = 205;
 	public static readonly short CMSG_INTERACT = 106;

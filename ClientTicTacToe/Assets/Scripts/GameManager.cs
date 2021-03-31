@@ -7,8 +7,10 @@ public class GameManager : MonoBehaviour
 {
 	public Player[] Players = new Player[2];
 	public GameObject HeroPrefab;
+	public GameObject TilePrefab;
 
 	private Hero[,] gameBoard = new Hero[6,5];
+	private Tile[,] gameBoard = new Tile[6,5];
 
 	private int currentPlayer = 1;
 	private bool canInteract = false;
@@ -40,6 +42,7 @@ public class GameManager : MonoBehaviour
 	}
 
 	public void CreateHeroes()
+	public void CreateTiles()
 	{
 		for (int i = 0; i < 5; i++)
 		{
@@ -55,6 +58,18 @@ public class GameManager : MonoBehaviour
 			hero2.Index = i;
 			gameBoard[5, i] = hero2;
 			Players[1].AddHero(hero2);
+			GameObject tileObj1 = Instantiate(TilePrefab, new Vector3(0, 0, (float)i), Quaternion.identity);
+			tileObj1.GetComponentInChildren<Renderer>().material.color = Players[0].Color;
+			Tile tile1 = tileObj1.GetComponent<Tile>();
+			tile1.Index = i;
+			Players[0].AddTile(tile1);
+			gameBoard[0, i] = tile1;
+			GameObject tileObj2 = Instantiate(TilePrefab, new Vector3(5, 0, (float)i), Quaternion.identity);
+			tileObj2.GetComponentInChildren<Renderer>().material.color = Players[1].Color;
+			Tile tile2 = tileObj2.GetComponent<Tile>();
+			tile2.Index = i;
+			gameBoard[5, i] = tile2;
+			Players[1].AddTile(tile2);
 		}
 	}
 

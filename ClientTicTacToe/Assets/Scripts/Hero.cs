@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Hero : MonoBehaviour
+public class Tile : MonoBehaviour
 {
 	public Player Owner;
 	public int Index;
@@ -80,6 +81,7 @@ public class Hero : MonoBehaviour
 	}
 
 	public void Interact(Hero target)
+	public void Interact(Tile target)
 	{
 		isInteracting = true;
 		interactionTime = 0.0f;
@@ -88,6 +90,7 @@ public class Hero : MonoBehaviour
 	}
 
 	private void ReceiveInteraction(Hero interactor)
+	private void ReceiveInteraction(Tile interactor)
 	{
 		isInteractedWith = true;
 		interactionTime = 0.0f;
