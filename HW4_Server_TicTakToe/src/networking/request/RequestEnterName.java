@@ -14,7 +14,7 @@ public class RequestEnterName extends GameRequest {
     private String name;
 
     // Responses
-    private ResponseEnterName responseName;
+    private ResponseEnterName responseEnterName;
 
     public RequestEnterName() {
         responses.add(responseEnterName = new ResponseEnterName());
@@ -30,8 +30,8 @@ public class RequestEnterName extends GameRequest {
         Player player = client.getPlayer();
        
         player.setName(name);
-        responseName.setPlayer(player);
+        responseEnterName.setPlayer(player);
 
-        NetworkManager.addResponseForAllOnlinePlayers(player.getID(), responseName);
+        NetworkManager.addResponseForAllOnlinePlayers(player.getID(), responseEnterName);
     }
 }
