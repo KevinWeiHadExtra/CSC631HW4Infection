@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HeroCreator : MonoBehaviour
 public class TileCreator : MonoBehaviour
 {
 	private static GameManager gameManager;
@@ -11,7 +10,6 @@ public class TileCreator : MonoBehaviour
 	void Start()
 	{
 		gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
-		gameManager.CreateHeroes();
 		gameManager.CreateTiles();
 	}
 

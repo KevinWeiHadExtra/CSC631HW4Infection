@@ -31,12 +31,10 @@ public class NetworkManager : MonoBehaviour
 		}
 	}
 
-	public bool SendJoinRequest()
 	public bool SendLoginRequest()
 	{
 		if (cManager && cManager.IsConnected())
 		{
-			RequestJoin request = new RequestJoin();
 			RequestLogin request = new RequestLogin();
 			request.send();
 			cManager.send(request);
@@ -45,12 +43,10 @@ public class NetworkManager : MonoBehaviour
 		return false;
 	}
 
-	public bool SendLeaveRequest()
 	public bool SendExitRequest()
 	{
 		if (cManager && cManager.IsConnected())
 		{
-			RequestLeave request = new RequestLeave();
 			RequestExit request = new RequestExit();
 			request.send();
 			cManager.send(request);
@@ -59,12 +55,10 @@ public class NetworkManager : MonoBehaviour
 		return false;
 	}
 
-	public bool SendSetNameRequest(string Name)
 	public bool SendEnterNameRequest(string Name)
 	{
 		if (cManager && cManager.IsConnected())
 		{
-			RequestSetName request = new RequestSetName();
 			RequestEnterName request = new RequestEnterName();
 			request.send(Name);
 			cManager.send(request);
@@ -73,12 +67,10 @@ public class NetworkManager : MonoBehaviour
 		return false;
 	}
 
-	public bool SendReadyRequest()
 	public bool SendConfirmRequest()
 	{
 		if (cManager && cManager.IsConnected())
 		{
-			RequestReady request = new RequestReady();
 			RequestConfirm request = new RequestConfirm();
 			request.send();
 			cManager.send(request);

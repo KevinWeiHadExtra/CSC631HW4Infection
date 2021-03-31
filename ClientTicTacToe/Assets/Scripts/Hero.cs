@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Hero : MonoBehaviour
 public class Tile : MonoBehaviour
 {
 	public Player Owner;
@@ -80,7 +79,6 @@ public class Tile : MonoBehaviour
 		this.y = y;
 	}
 
-	public void Interact(Hero target)
 	public void Interact(Tile target)
 	{
 		isInteracting = true;
@@ -89,7 +87,6 @@ public class Tile : MonoBehaviour
 		Debug.Log("Interacting!");
 	}
 
-	private void ReceiveInteraction(Hero interactor)
 	private void ReceiveInteraction(Tile interactor)
 	{
 		isInteractedWith = true;
