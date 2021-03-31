@@ -22,6 +22,7 @@ public class ResponseConfirm extends GameResponse {
         packet.addInt32(player.getID());
 
         Log.printf("Player with id %d is ready", player.getID());
+        player.setConfirmStatusOn(true);
         return packet.getBytes();
     }
 

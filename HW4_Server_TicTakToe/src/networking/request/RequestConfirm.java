@@ -11,10 +11,10 @@ import core.NetworkManager;
 public class RequestConfirm extends GameRequest {
 
     // Responses
-    private ResponseConfirm responseReady;
+    private ResponseConfirm responseConfirm;
 
     public RequestConfirm() {
-        responses.add(responseReady = new ResponseConfirm());
+        responses.add(responseConfirm = new ResponseConfirm());
     }
 
     @Override
@@ -26,8 +26,8 @@ public class RequestConfirm extends GameRequest {
     public void doBusiness() throws Exception {
         Player player = client.getPlayer();
 
-        responseReady.setPlayer(player);
+        responseConfirm.setPlayer(player);
 
-        NetworkManager.addResponseForAllOnlinePlayers(player.getID(), responseReady);
+        NetworkManager.addResponseForAllOnlinePlayers(player.getID(), responseConfirm);
     }
 }

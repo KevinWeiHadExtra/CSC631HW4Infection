@@ -9,7 +9,7 @@ import core.GameClient;
  * email, and the player ID.
  */
 public class Player {
-    private boolean isReady = false;
+    private boolean isConfirm = false;
     private int player_id;
     private String name;
     private GameClient client; // References GameClient instance
@@ -43,12 +43,12 @@ public class Player {
         return client;
     }
 
-    public boolean getReadyStatus() {
-        return isReady;
+    public boolean getConfirmStatus() {
+        return isConfirm;
     }
 
-    public void setReadyStatusOn(boolean status) {
-        isReady = status;
+    public void setConfirmStatusOn(boolean status) {
+        isConfirm = status;
     }
     
 
