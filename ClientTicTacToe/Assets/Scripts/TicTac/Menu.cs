@@ -23,6 +23,12 @@ public class Menu : MonoBehaviour
     private GameObject GameUI;
     private GameObject GameControl;
 
+    private NetworkManager networkManager;
+    private MessageQueue msgQueue;
+
+    private GameObject Join;
+    private GameObject JoinButton;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,10 +45,21 @@ public class Menu : MonoBehaviour
         P1Turn = GameObject.Find("P1Turn");
         P2Turn = GameObject.Find("P2Turn");
 
+        Join = GameObject.Find("Join");
+        JoinButton = GameObject.Find("JoinButton");
+
         GameControl.SetActive(false);
 
-        Player1Box.SetActive(true);
-        Player2Box.SetActive(true);
+
+        Join.SetActive(true);
+        Player1Overlay.SetActive(false);
+        Player2Overlay.SetActive(false);
+
+        networkManager = GameObject.Find("Network Manager").GetComponent<NetworkManager>();
+        msgQueue = networkManager.GetComponent<MessageQueue>();
+
+        msgQueue.AddCallback(Constants.SMSG_JOIN, OnResponseJoin);
+        msgQueue.AddCallback(Constants.SMSG_SETNAME, OnResponseSetName);
 
         GameUI.SetActive(false);
         P1Turn.SetActive(true);
@@ -53,8 +70,67 @@ public class Menu : MonoBehaviour
 
     }
 
+    public void OnJoin()
+    {
+        Debug.Log("Send JoinReq");
+        bool connected = networkManager.SendJoinRequest();
+        if (!connected)
+        {
+            Debug.Log("Unable to connect to server");
+        }
+    }
+
+    public void OnResponseJoin(ExtendedEventArgs eventArgs)
+    {
+        Debug.Log("Response join");
+        ResponseJoinEventArgs args = eventArgs as ResponseJoinEventArgs;
+        if (args.status == 0)
+        {
+            if (args.user_id == 1)
+            {
+                Join.SetActive(false);
+                Player1Overlay.SetActive(true);
+                Player2Overlay.SetActive(true);
+                Player2Box.SetActive(false);
+            }
+            else if (args.user_id == 2)
+            {
+                Join.SetActive(false);
+                Player1Overlay.SetActive(true);
+                Player1Box.SetActive(false);
+                Player2Overlay.SetActive(true);
+            }
+            else
+            {
+                Debug.Log("ERROR: Invalid user_id in ResponseJoin: " + args.user_id);
+                return;
+            }
+            Constants.USER_ID = args.user_id;
+            Debug.Log("MYUSERID: " + Constants.USER_ID);
+            Constants.OP_ID = 3 - args.user_id;
+            if (args.op_id > 0)
+            {
+                if (args.op_id == Constants.OP_ID)
+                {
+                    if (args.user_id == 1)
+                    {
+                        displayName2.SetActive(true);
+                        displayName2.GetComponent<Text>().text = args.op_name;
+                    }
+                    else
+                    {
+                        displayName1.SetActive(true);
+                        displayName1.GetComponent<Text>().text = args.op_name;
+                    }
+                }
+            }
+        }
+    }
+
+
     public void OnPlayer1Submit()
     {
+        
         string p1Name = GameObject.Find("Player1Input").GetComponent<InputField>().text;
 
         Debug.Log(p1Name);
@@ -68,13 +144,29 @@ public class Menu : MonoBehaviour
         }
         Player1Box.SetActive(false);
         displayName1.SetActive(true);
-        if (displayName2.activeSelf == true)
+        Debug.Log("Send SetNameReq: " + p1Name);
+        networkManager.SendSetNameRequest(p1Name);
+    }
+
+    public void OnResponseSetName(ExtendedEventArgs eventArgs)
+    {
+        Debug.Log("Response Set Name");
+        
+        Debug.Log(Constants.USER_ID);
+        ResponseSetNameEventArgs args = eventArgs as ResponseSetNameEventArgs;
+        Debug.Log(args.user_id);
+        if (args.user_id != Constants.USER_ID)
         {
-            setGameUI();
-            GameControl.SetActive(true);
-            GameControl gameControl = GameObject.Find("GameControl").GetComponent<GameControl>();
-            gameControl.start();
-            
+            if (args.user_id == 1)
+            {
+                displayName1.SetActive(true);
+                displayName1.GetComponent<Text>().text = args.name;
+            }
+            else
+            {
+                displayName2.SetActive(true);
+                displayName2.GetComponent<Text>().text = args.name;
+            }
         }
     }
 
@@ -93,14 +185,8 @@ public class Menu : MonoBehaviour
         }
         Player2Box.SetActive(false);
         displayName2.SetActive(true);
-        if (displayName1.activeSelf == true)
-        {
-            setGameUI();
-            GameControl.SetActive(true);
-            GameControl gameControl = GameObject.Find("GameControl").GetComponent<GameControl>();
-            gameControl.start();
-            
-        }
+        Debug.Log("Send SetNameReq: " + p2Name);
+        networkManager.SendSetNameRequest(p2Name);
     }
 
     void setGameUI()
@@ -111,6 +197,8 @@ public class Menu : MonoBehaviour
         P1Turn.GetComponent<Text>().text = displayName1.GetComponent<Text>().text + "'s Turn";
         P2Turn.GetComponent<Text>().text = displayName2.GetComponent<Text>().text + "'s Turn";
     }
+
+
 
     // Update is called once per frame
     void Update()
