@@ -35,6 +35,7 @@ public class ResponseLogin extends GameResponse {
                 if(p.getID() != player.getID()) {
                     packet.addInt32(p.getID());
                     packet.addString(p.getName());
+                    packet.addBoolean(p.getConfirmStatus());
                     otherPlayerExists = true;
                 }
             }
