@@ -9,10 +9,10 @@ public class NetworkResponseTable {
 	
 	public static void init() {
 		responseTable = new Dictionary<short, Type>();
-		add(Constants.SMSG_JOIN, "ResponseJoin");
-		add(Constants.SMSG_LEAVE, "ResponseLeave");
-		add(Constants.SMSG_SETNAME, "ResponseSetName");
-		add(Constants.SMSG_READY, "ResponseReady");
+		add(Constants.SMSG_LOGIN, "ResponseLogin");
+		add(Constants.SMSG_EXIT, "ResponseExit");
+		add(Constants.SMSG_ENTERNAME, "ResponseEnterName");
+		add(Constants.SMSG_CONFIRM, "ResponseCofirm");
 		add(Constants.SMSG_MOVE, "ResponseMove");
 		add(Constants.SMSG_INTERACT, "ResponseInteract");
 	}

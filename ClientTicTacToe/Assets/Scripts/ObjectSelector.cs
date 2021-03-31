@@ -50,7 +50,7 @@ public class ObjectSelector : MonoBehaviour
 		HighlightedObject = gameObject;
 		if (HighlightedObject)
 		{
-			if (HighlightedObject.GetComponentInParent<Hero>())
+			if (HighlightedObject.GetComponentInParent<Tile>())
 			{
 				HighlightedObject = HighlightedObject.transform.parent.gameObject;
 			}
@@ -70,7 +70,7 @@ public class ObjectSelector : MonoBehaviour
 		SelectedObject = gameObject;
 		if (SelectedObject)
 		{
-			if (SelectedObject.GetComponentInParent<Hero>())
+			if (SelectedObject.GetComponentInParent<Tile>())
 			{
 				SelectedObject = SelectedObject.transform.parent.gameObject;
 			}

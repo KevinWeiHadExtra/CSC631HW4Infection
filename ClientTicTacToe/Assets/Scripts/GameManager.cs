@@ -6,9 +6,9 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
 	public Player[] Players = new Player[2];
-	public GameObject HeroPrefab;
+	public GameObject TilePrefab;
 
-	private Hero[,] gameBoard = new Hero[6,5];
+	private Tile[,] gameBoard = new Tile[6,5];
 
 	private int currentPlayer = 1;
 	private bool canInteract = false;
@@ -39,22 +39,22 @@ public class GameManager : MonoBehaviour
 		useNetwork = (!player1.IsMouseControlled || !player2.IsMouseControlled);
 	}
 
-	public void CreateHeroes()
+	public void CreateTiles()
 	{
 		for (int i = 0; i < 5; i++)
 		{
-			GameObject heroObj1 = Instantiate(HeroPrefab, new Vector3(0, 0, (float)i), Quaternion.identity);
-			heroObj1.GetComponentInChildren<Renderer>().material.color = Players[0].Color;
-			Hero hero1 = heroObj1.GetComponent<Hero>();
-			hero1.Index = i;
-			Players[0].AddHero(hero1);
-			gameBoard[0, i] = hero1;
-			GameObject heroObj2 = Instantiate(HeroPrefab, new Vector3(5, 0, (float)i), Quaternion.identity);
-			heroObj2.GetComponentInChildren<Renderer>().material.color = Players[1].Color;
-			Hero hero2 = heroObj2.GetComponent<Hero>();
-			hero2.Index = i;
-			gameBoard[5, i] = hero2;
-			Players[1].AddHero(hero2);
+			GameObject tileObj1 = Instantiate(TilePrefab, new Vector3(0, 0, (float)i), Quaternion.identity);
+			tileObj1.GetComponentInChildren<Renderer>().material.color = Players[0].Color;
+			Tile tile1 = tileObj1.GetComponent<Tile>();
+			tile1.Index = i;
+			Players[0].AddTile(tile1);
+			gameBoard[0, i] = tile1;
+			GameObject tileObj2 = Instantiate(TilePrefab, new Vector3(5, 0, (float)i), Quaternion.identity);
+			tileObj2.GetComponentInChildren<Renderer>().material.color = Players[1].Color;
+			Tile tile2 = tileObj2.GetComponent<Tile>();
+			tile2.Index = i;
+			gameBoard[5, i] = tile2;
+			Players[1].AddTile(tile2);
 		}
 	}
 
@@ -71,40 +71,40 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	public void EndInteraction(Hero hero)
+	public void EndInteraction(Tile tile)
 	{
 		EndTurn();
 	}
 
-	public void EndInteractedWith(Hero hero)
+	public void EndInteractedWith(Tile tile)
 	{
 		// Do nothing
 	}
 
-	public void EndMove(Hero hero)
+	public void EndMove(Tile tile)
 	{
-		bool heroCanInteract = false;
+		bool tileCanInteract = false;
 		int[] deltaX = { 1, 0, -1, 0 };
 		int[] deltaY = { 0, 1, 0, -1 };
 		for (int i = 0; i < 4; ++i)
 		{
-			int x = hero.x + deltaX[i];
-			int y = hero.y + deltaY[i];
+			int x = tile.x + deltaX[i];
+			int y = tile.y + deltaY[i];
 			if (x >= 0 && x < 6 && y >= 0 && y < 5)
 			{
-				if (gameBoard[x, y] && gameBoard[x, y].Owner != hero.Owner)
+				if (gameBoard[x, y] && gameBoard[x, y].Owner != tile.Owner)
 				{
-					heroCanInteract = true;
+					tileCanInteract = true;
 					break;
 				}
 			}
 		}
-		if (hero.Owner.IsMouseControlled)
+		if (tile.Owner.IsMouseControlled)
 		{
-			canInteract = heroCanInteract;
+			canInteract = tileCanInteract;
 		}
 
-		if (!heroCanInteract)
+		if (!tileCanInteract)
 		{
 			EndTurn();
 		}
@@ -123,22 +123,22 @@ public class GameManager : MonoBehaviour
 		{
 			if (ObjectSelector.SelectedObject)
 			{
-				Hero hero = ObjectSelector.SelectedObject.GetComponentInParent<Hero>();
-				if (hero)
+				Tile tile = ObjectSelector.SelectedObject.GetComponentInParent<Tile>();
+				if (tile)
 				{
 					int x = (int)hitObject.transform.position.x;
 					int y = (int)hitObject.transform.position.z;
 					if (gameBoard[x, y] == null)
 					{
-						if (hero.CanMoveTo(x, y))
+						if (tile.CanMoveTo(x, y))
 						{
 							if (useNetwork)
 							{
-								networkManager.SendMoveRequest(hero.Index, x, y);
+								networkManager.SendMoveRequest(tile.Index, x, y);
 							}
-							gameBoard[hero.x, hero.y] = null;
-							hero.Move(x, y);
-							gameBoard[x, y] = hero;
+							gameBoard[tile.x, tile.y] = null;
+							tile.Move(x, y);
+							gameBoard[x, y] = tile;
 						}
 					}
 				}
@@ -146,30 +146,30 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
-			Hero hero = hitObject.GetComponentInParent<Hero>();
-			if (hero)
+			Tile tile = hitObject.GetComponentInParent<Tile>();
+			if (tile)
 			{
 				if (choosingInteraction)
 				{
-					Hero selectedHero = ObjectSelector.SelectedObject?.GetComponentInParent<Hero>();
-					if (selectedHero)
+					Tile selectedTile = ObjectSelector.SelectedObject?.GetComponentInParent<Tile>();
+					if (selectedTile)
 					{
-						if (AreNeighbors(hero, selectedHero) && hero.Owner != selectedHero.Owner)
+						if (AreNeighbors(tile, selectedTile) && tile.Owner != selectedTile.Owner)
 						{
 							if (useNetwork)
 							{
-								networkManager.SendInteractRequest(selectedHero.Index, hero.Index);
+								networkManager.SendInteractRequest(selectedTile.Index, tile.Index);
 							}
-							selectedHero.Interact(hero);
+							selectedTile.Interact(tile);
 							choosingInteraction = false;
 						}
 					}
 				}
-				else if (hero.gameObject == ObjectSelector.SelectedObject)
+				else if (tile.gameObject == ObjectSelector.SelectedObject)
 				{
 					ObjectSelector.SetSelectedObject(null);
 				}
-				else if (hero.Owner.IsMouseControlled && hero.Owner == Players[currentPlayer - 1])
+				else if (tile.Owner.IsMouseControlled && tile.Owner == Players[currentPlayer - 1])
 				{
 					ObjectSelector.SetSelectedObject(hitObject);
 				}
@@ -181,8 +181,8 @@ public class GameManager : MonoBehaviour
 	{
 		if (gameObject.tag == "Tile")
 		{
-			Hero hero = ObjectSelector.SelectedObject?.GetComponentInParent<Hero>();
-			if (hero)
+			Tile tile = ObjectSelector.SelectedObject?.GetComponentInParent<Tile>();
+			if (tile)
 			{
 				int x = (int)gameObject.transform.position.x;
 				int y = (int)gameObject.transform.position.z;
@@ -191,11 +191,11 @@ public class GameManager : MonoBehaviour
 		}
 		else if (choosingInteraction)
 		{
-			Hero hero = gameObject.GetComponentInParent<Hero>();
-			Hero selectedHero = ObjectSelector.SelectedObject?.GetComponentInParent<Hero>();
-			if (hero && selectedHero)
+			Tile tile = gameObject.GetComponentInParent<Tile>();
+			Tile selectedTile = ObjectSelector.SelectedObject?.GetComponentInParent<Tile>();
+			if (tile && selectedTile)
 			{
-				return AreNeighbors(hero, selectedHero) && hero.Owner != selectedHero.Owner;
+				return AreNeighbors(tile, selectedTile) && tile.Owner != selectedTile.Owner;
 			}
 			else
 			{
@@ -204,18 +204,18 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
-			Hero hero = gameObject.GetComponentInParent<Hero>();
-			if (hero)
+			Tile tile = gameObject.GetComponentInParent<Tile>();
+			if (tile)
 			{
-				return (hero.Owner.IsMouseControlled && hero.Owner == Players[currentPlayer - 1]);
+				return (tile.Owner.IsMouseControlled && tile.Owner == Players[currentPlayer - 1]);
 			}
 		}
 		return true;
 	}
 
-	private bool AreNeighbors(Hero hero1, Hero hero2)
+	private bool AreNeighbors(Tile tile1, Tile tile2)
 	{
-		return (Math.Abs(hero1.x - hero2.x) + Math.Abs(hero1.y - hero2.y) == 1);
+		return (Math.Abs(tile1.x - tile2.x) + Math.Abs(tile1.y - tile2.y) == 1);
 	}
 
 	public void OnResponseMove(ExtendedEventArgs eventArgs)
@@ -226,10 +226,10 @@ public class GameManager : MonoBehaviour
 			int pieceIndex = args.piece_idx;
 			int x = args.x;
 			int y = args.y;
-			Hero hero = Players[args.user_id - 1].Heroes[pieceIndex];
-			gameBoard[hero.x, hero.y] = null;
-			hero.Move(x, y);
-			gameBoard[x, y] = hero;
+			Tile tile = Players[args.user_id - 1].Tiles[pieceIndex];
+			gameBoard[tile.x, tile.y] = null;
+			tile.Move(x, y);
+			gameBoard[x, y] = tile;
 		}
 		else if (args.user_id == Constants.USER_ID)
 		{
@@ -248,9 +248,9 @@ public class GameManager : MonoBehaviour
 		{
 			int pieceIndex = args.piece_idx;
 			int targetIndex = args.target_idx;
-			Hero hero = Players[args.user_id - 1].Heroes[pieceIndex];
-			Hero target = Players[Constants.USER_ID - 1].Heroes[targetIndex];
-			hero.Interact(target);
+			Tile tile = Players[args.user_id - 1].Tiles[pieceIndex];
+			Tile target = Players[Constants.USER_ID - 1].Tiles[targetIndex];
+			tile.Interact(target);
 		}
 		else if (args.user_id == Constants.USER_ID)
 		{
