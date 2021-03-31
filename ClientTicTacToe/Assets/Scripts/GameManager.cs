@@ -102,6 +102,7 @@ public class GameManager : MonoBehaviour
 	public void EndMove(Tile tile)
 	{
 		bool heroCanInteract = false;
+		bool tileCanInteract = false;
 		int[] deltaX = { 1, 0, -1, 0 };
 		int[] deltaY = { 0, 1, 0, -1 };
 		for (int i = 0; i < 4; ++i)

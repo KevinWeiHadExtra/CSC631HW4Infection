@@ -60,6 +60,8 @@ public class Menu : MonoBehaviour
 
         msgQueue.AddCallback(Constants.SMSG_JOIN, OnResponseJoin);
         msgQueue.AddCallback(Constants.SMSG_SETNAME, OnResponseSetName);
+        msgQueue.AddCallback(Constants.SMSG_LOGIN, OnResponseJoin);
+        msgQueue.AddCallback(Constants.SMSG_ENTERNAME, OnResponseSetName);
 
         GameUI.SetActive(false);
         P1Turn.SetActive(true);
@@ -74,6 +76,7 @@ public class Menu : MonoBehaviour
     {
         Debug.Log("Send JoinReq");
         bool connected = networkManager.SendJoinRequest();
+        bool connected = networkManager.SendLoginRequest();
         if (!connected)
         {
             Debug.Log("Unable to connect to server");
@@ -84,6 +87,7 @@ public class Menu : MonoBehaviour
     {
         Debug.Log("Response join");
         ResponseJoinEventArgs args = eventArgs as ResponseJoinEventArgs;
+        ResponseLoginEventArgs args = eventArgs as ResponseLoginEventArgs;
         if (args.status == 0)
         {
             if (args.user_id == 1)
@@ -146,6 +150,7 @@ public class Menu : MonoBehaviour
         displayName1.SetActive(true);
         Debug.Log("Send SetNameReq: " + p1Name);
         networkManager.SendSetNameRequest(p1Name);
+        networkManager.SendEnterNameRequest(p1Name);
     }
 
     public void OnResponseSetName(ExtendedEventArgs eventArgs)
@@ -154,6 +159,7 @@ public class Menu : MonoBehaviour
         
         Debug.Log(Constants.USER_ID);
         ResponseSetNameEventArgs args = eventArgs as ResponseSetNameEventArgs;
+        ResponseEnterNameEventArgs args = eventArgs as ResponseEnterNameEventArgs;
         Debug.Log(args.user_id);
         if (args.user_id != Constants.USER_ID)
         {
@@ -187,6 +193,7 @@ public class Menu : MonoBehaviour
         displayName2.SetActive(true);
         Debug.Log("Send SetNameReq: " + p2Name);
         networkManager.SendSetNameRequest(p2Name);
+        networkManager.SendEnterNameRequest(p2Name);
     }
 
     void setGameUI()

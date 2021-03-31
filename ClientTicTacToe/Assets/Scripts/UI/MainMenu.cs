@@ -72,6 +72,8 @@ public class MainMenu : MonoBehaviour
 	{
 		Debug.Log("Send JoinReq");
 		bool connected = networkManager.SendJoinRequest();
+		Debug.Log("Send LoginReq");
+		bool connected = networkManager.SendLoginRequest();
 		if (!connected)
 		{
 			messageBoxMsg.text = "Unable to connect to server.";
@@ -106,8 +108,10 @@ public class MainMenu : MonoBehaviour
 
 	#region NetworkMenu
 	public void OnResponseJoin(ExtendedEventArgs eventArgs)
+	public void OnResponseLogin(ExtendedEventArgs eventArgs)
 	{
 		ResponseJoinEventArgs args = eventArgs as ResponseJoinEventArgs;
+		ResponseLoginEventArgs args = eventArgs as ResponseLoginEventArgs;
 		if (args.status == 0)
 		{
 			if (args.user_id == 1)
@@ -127,6 +131,7 @@ public class MainMenu : MonoBehaviour
 			else
 			{
 				Debug.Log("ERROR: Invalid user_id in ResponseJoin: " + args.user_id);
+				Debug.Log("ERROR: Invalid user_id in ResponseLogin: " + args.user_id);
 				messageBoxMsg.text = "Error joining game. Network returned invalid response.";
 				messageBox.SetActive(true);
 				return;
@@ -140,10 +145,12 @@ public class MainMenu : MonoBehaviour
 				{
 					opponentName.text = args.op_name;
 					opReady = args.op_ready;
+					opConfirm = args.op_confirm;
 				}
 				else
 				{
 					Debug.Log("ERROR: Invalid op_id in ResponseJoin: " + args.op_id);
+					Debug.Log("ERROR: Invalid op_id in ResponseLogin: " + args.op_id);
 					messageBoxMsg.text = "Error joining game. Network returned invalid response.";
 					messageBox.SetActive(true);
 					return;
@@ -170,28 +177,36 @@ public class MainMenu : MonoBehaviour
 	}
 
 	public void OnLeave()
+	public void OnExit()
 	{
 		Debug.Log("Send LeaveReq");
 		networkManager.SendLeaveRequest();
+		networkManager.SendExitRequest();
 		rootMenuPanel.SetActive(true);
 		networkMenuPanel.SetActive(false);
 		ready = false;
+		confirm = false;
 	}
 
 	public void OnResponseLeave(ExtendedEventArgs eventArgs)
+	public void OnResponseExit(ExtendedEventArgs eventArgs)
 	{
 		ResponseLeaveEventArgs args = eventArgs as ResponseLeaveEventArgs;
+		ResponseExitEventArgs args = eventArgs as ResponseExitEventArgs;
 		if (args.user_id != Constants.USER_ID)
 		{
 			opponentName.text = "Waiting for opponent";
 			opReady = false;
+			opConfirm = false;
 		}
 	}
 
 	public void OnPlayerNameSet(string name)
+	public void OnPlayerNameEnter(string name)
 	{
 		Debug.Log("Send SetNameReq: " + name);
 		networkManager.SendSetNameRequest(name);
+		networkManager.SendEnterNameRequest(name);
 		if (Constants.USER_ID == 1)
 		{
 			p1Name = name;
@@ -203,8 +218,10 @@ public class MainMenu : MonoBehaviour
 	}
 
 	public void OnResponseSetName(ExtendedEventArgs eventArgs)
+	public void OnResponseEnterName(ExtendedEventArgs eventArgs)
 	{
 		ResponseSetNameEventArgs args = eventArgs as ResponseSetNameEventArgs;
+		ResponseEnterNameEventArgs args = eventArgs as ResponseEnterNameEventArgs;
 		if (args.user_id != Constants.USER_ID)
 		{
 			opponentName.text = args.name;
@@ -220,31 +237,41 @@ public class MainMenu : MonoBehaviour
 	}
 
 	public void OnReadyClick()
+	public void OnConfirmClick()
 	{
 		Debug.Log("Send ReadyReq");
 		networkManager.SendReadyRequest();
+		Debug.Log("Send ConfirmReq");
+		networkManager.SendConfirmRequest();
 	}
 
 	public void OnResponseReady(ExtendedEventArgs eventArgs)
+	public void OnResponseConfirm(ExtendedEventArgs eventArgs)
 	{
 		ResponseReadyEventArgs args = eventArgs as ResponseReadyEventArgs;
 		if (Constants.USER_ID == -1) // Haven't joined, but got ready message
+		ResponseConfirmEventArgs args = eventArgs as ResponseConfirmEventArgs;
+		if (Constants.USER_ID == -1) // Haven't joined, but got confirm message
 		{
 			opReady = true;
+			opConfirm = true;
 		}
 		else
 		{
 			if (args.user_id == Constants.OP_ID)
 			{
 				opReady = true;
+				opConfirm = true;
 			}
 			else if (args.user_id == Constants.USER_ID)
 			{
 				ready = true;
+				confirm = true;
 			}
 			else
 			{
 				Debug.Log("ERROR: Invalid user_id in ResponseReady: " + args.user_id);
+				Debug.Log("ERROR: Invalid user_id in ResponseConfirm: " + args.user_id);
 				messageBoxMsg.text = "Error starting game. Network returned invalid response.";
 				messageBox.SetActive(true);
 				return;
@@ -252,6 +279,7 @@ public class MainMenu : MonoBehaviour
 		}
 
 		if (ready && opReady)
+		if (confirm && opConfirm)
 		{
 			StartNetworkGame();
 		}
