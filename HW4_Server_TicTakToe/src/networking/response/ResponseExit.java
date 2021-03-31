@@ -32,7 +32,6 @@ public class ResponseExit extends GameResponse {
         }
 
         Log.printf("Player with id %d has left.", player.getID());
-        player.setReadyStatusOn(false);
         return packet.getBytes();
     }
 

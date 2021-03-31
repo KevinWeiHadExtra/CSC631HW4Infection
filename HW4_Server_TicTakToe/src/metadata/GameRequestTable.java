@@ -27,7 +27,6 @@ public class GameRequestTable {
         add(Constants.CMSG_CONFIRM, "RequestConfirm");
         add(Constants.CMSG_MOVE, "RequestMove");
         add(Constants.CMSG_INTERACT, "RequestInteract");
-        add(Constants.CMSG_HEARTBEAT, "RequestMonitor");
     }
 
     /**
