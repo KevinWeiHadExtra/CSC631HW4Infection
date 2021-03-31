@@ -8,7 +8,7 @@ import core.GameServer;
 import core.NetworkManager;
 import model.Player;
 import networking.response.ResponseLogin;
-import networking.response.ResponseName;
+import networking.response.ResponseEnterName;
 import utility.Log;
 
 /**
@@ -49,7 +49,7 @@ public class RequestLogin extends GameRequest {
             responseLogin.setPlayer(player);
             Log.printf("User '%s' has successfully logged in.", player.getName());
 
-            ResponseName responseName = new ResponseName();
+            ResponseEnterName responseName = new ResponseEnterName();
             responseName.setPlayer(player);
             NetworkManager.addResponseForAllOnlinePlayers(player.getID(), responseName);
         } else {

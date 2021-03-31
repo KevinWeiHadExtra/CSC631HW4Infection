@@ -11,9 +11,9 @@ import utility.Log;
  * The RequestHeartbeat class is mainly used to release all pending responses
  * the client. Also used to keep the connection alive.
  */
-public class RequestMonitor extends GameRequest {
+public class RequestHeartbeat extends GameRequest {
 
-    public RequestMonitor() {
+    public RequestHeartbeat() {
     }
 
     @Override

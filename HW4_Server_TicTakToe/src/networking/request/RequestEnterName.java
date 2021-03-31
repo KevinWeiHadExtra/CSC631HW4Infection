@@ -5,19 +5,19 @@ import java.io.IOException;
 
 // Other Imports
 import model.Player;
-import networking.response.ResponseName;
+import networking.response.ResponseEnterName;
 import utility.DataReader;
 import core.NetworkManager;
 
-public class RequestName extends GameRequest {
+public class RequestEnterName extends GameRequest {
     // Data
     private String name;
 
     // Responses
-    private ResponseName responseName;
+    private ResponseEnterName responseName;
 
-    public RequestName() {
-        responses.add(responseName = new ResponseName());
+    public RequestEnterName() {
+        responses.add(responseEnterName = new ResponseEnterName());
     }
 
     @Override

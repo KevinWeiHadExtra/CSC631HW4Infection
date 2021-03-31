@@ -9,10 +9,10 @@ import utility.Log;
  * The ResponseLogin class contains information about the authentication
  * process.
  */
-public class ResponseName extends GameResponse {
+public class ResponseEnterName extends GameResponse {
     private Player player;
 
-    public ResponseName() {
+    public ResponseEnterName() {
         responseCode = Constants.SMSG_ENTERNAME;
     }
 
