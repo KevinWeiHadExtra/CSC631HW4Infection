@@ -87,16 +87,19 @@ public class GameManager : MonoBehaviour
 	}
 
 	public void EndInteraction(Hero hero)
+	public void EndInteraction(Tile tile)
 	{
 		EndTurn();
 	}
 
 	public void EndInteractedWith(Hero hero)
+	public void EndInteractedWith(Tile tile)
 	{
 		// Do nothing
 	}
 
 	public void EndMove(Hero hero)
+	public void EndMove(Tile tile)
 	{
 		bool heroCanInteract = false;
 		int[] deltaX = { 1, 0, -1, 0 };
@@ -105,18 +108,24 @@ public class GameManager : MonoBehaviour
 		{
 			int x = hero.x + deltaX[i];
 			int y = hero.y + deltaY[i];
+			int x = tile.x + deltaX[i];
+			int y = tile.y + deltaY[i];
 			if (x >= 0 && x < 6 && y >= 0 && y < 5)
 			{
 				if (gameBoard[x, y] && gameBoard[x, y].Owner != hero.Owner)
+				if (gameBoard[x, y] && gameBoard[x, y].Owner != tile.Owner)
 				{
 					heroCanInteract = true;
+					tileCanInteract = true;
 					break;
 				}
 			}
 		}
 		if (hero.Owner.IsMouseControlled)
+		if (tile.Owner.IsMouseControlled)
 		{
 			canInteract = heroCanInteract;
+			canInteract = tileCanInteract;
 		}
 
 		if (!heroCanInteract)
@@ -140,20 +149,27 @@ public class GameManager : MonoBehaviour
 			{
 				Hero hero = ObjectSelector.SelectedObject.GetComponentInParent<Hero>();
 				if (hero)
+				Tile tile = ObjectSelector.SelectedObject.GetComponentInParent<Tile>();
+				if (tile)
 				{
 					int x = (int)hitObject.transform.position.x;
 					int y = (int)hitObject.transform.position.z;
 					if (gameBoard[x, y] == null)
 					{
 						if (hero.CanMoveTo(x, y))
+						if (tile.CanMoveTo(x, y))
 						{
 							if (useNetwork)
 							{
 								networkManager.SendMoveRequest(hero.Index, x, y);
+								networkManager.SendMoveRequest(tile.Index, x, y);
 							}
 							gameBoard[hero.x, hero.y] = null;
 							hero.Move(x, y);
 							gameBoard[x, y] = hero;
+							gameBoard[tile.x, tile.y] = null;
+							tile.Move(x, y);
+							gameBoard[x, y] = tile;
 						}
 					}
 				}
@@ -163,28 +179,37 @@ public class GameManager : MonoBehaviour
 		{
 			Hero hero = hitObject.GetComponentInParent<Hero>();
 			if (hero)
+			Tile tile = hitObject.GetComponentInParent<Tile>();
+			if (tile)
 			{
 				if (choosingInteraction)
 				{
 					Hero selectedHero = ObjectSelector.SelectedObject?.GetComponentInParent<Hero>();
 					if (selectedHero)
+					Tile selectedTile = ObjectSelector.SelectedObject?.GetComponentInParent<Tile>();
+					if (selectedTile)
 					{
 						if (AreNeighbors(hero, selectedHero) && hero.Owner != selectedHero.Owner)
+						if (AreNeighbors(tile, selectedTile) && tile.Owner != selectedTile.Owner)
 						{
 							if (useNetwork)
 							{
 								networkManager.SendInteractRequest(selectedHero.Index, hero.Index);
+								networkManager.SendInteractRequest(selectedTile.Index, tile.Index);
 							}
 							selectedHero.Interact(hero);
+							selectedTile.Interact(tile);
 							choosingInteraction = false;
 						}
 					}
 				}
 				else if (hero.gameObject == ObjectSelector.SelectedObject)
+				else if (tile.gameObject == ObjectSelector.SelectedObject)
 				{
 					ObjectSelector.SetSelectedObject(null);
 				}
 				else if (hero.Owner.IsMouseControlled && hero.Owner == Players[currentPlayer - 1])
+				else if (tile.Owner.IsMouseControlled && tile.Owner == Players[currentPlayer - 1])
 				{
 					ObjectSelector.SetSelectedObject(hitObject);
 				}
@@ -198,6 +223,8 @@ public class GameManager : MonoBehaviour
 		{
 			Hero hero = ObjectSelector.SelectedObject?.GetComponentInParent<Hero>();
 			if (hero)
+			Tile tile = ObjectSelector.SelectedObject?.GetComponentInParent<Tile>();
+			if (tile)
 			{
 				int x = (int)gameObject.transform.position.x;
 				int y = (int)gameObject.transform.position.z;
@@ -209,8 +236,12 @@ public class GameManager : MonoBehaviour
 			Hero hero = gameObject.GetComponentInParent<Hero>();
 			Hero selectedHero = ObjectSelector.SelectedObject?.GetComponentInParent<Hero>();
 			if (hero && selectedHero)
+			Tile tile = gameObject.GetComponentInParent<Tile>();
+			Tile selectedTile = ObjectSelector.SelectedObject?.GetComponentInParent<Tile>();
+			if (tile && selectedTile)
 			{
 				return AreNeighbors(hero, selectedHero) && hero.Owner != selectedHero.Owner;
+				return AreNeighbors(tile, selectedTile) && tile.Owner != selectedTile.Owner;
 			}
 			else
 			{
@@ -221,16 +252,21 @@ public class GameManager : MonoBehaviour
 		{
 			Hero hero = gameObject.GetComponentInParent<Hero>();
 			if (hero)
+			Tile tile = gameObject.GetComponentInParent<Tile>();
+			if (tile)
 			{
 				return (hero.Owner.IsMouseControlled && hero.Owner == Players[currentPlayer - 1]);
+				return (tile.Owner.IsMouseControlled && tile.Owner == Players[currentPlayer - 1]);
 			}
 		}
 		return true;
 	}
 
 	private bool AreNeighbors(Hero hero1, Hero hero2)
+	private bool AreNeighbors(Tile tile1, Tile tile2)
 	{
 		return (Math.Abs(hero1.x - hero2.x) + Math.Abs(hero1.y - hero2.y) == 1);
+		return (Math.Abs(tile1.x - tile2.x) + Math.Abs(tile1.y - tile2.y) == 1);
 	}
 
 	public void OnResponseMove(ExtendedEventArgs eventArgs)
@@ -245,6 +281,10 @@ public class GameManager : MonoBehaviour
 			gameBoard[hero.x, hero.y] = null;
 			hero.Move(x, y);
 			gameBoard[x, y] = hero;
+			Tile tile = Players[args.user_id - 1].Tiles[pieceIndex];
+			gameBoard[tile.x, tile.y] = null;
+			tile.Move(x, y);
+			gameBoard[x, y] = tile;
 		}
 		else if (args.user_id == Constants.USER_ID)
 		{
@@ -266,6 +306,9 @@ public class GameManager : MonoBehaviour
 			Hero hero = Players[args.user_id - 1].Heroes[pieceIndex];
 			Hero target = Players[Constants.USER_ID - 1].Heroes[targetIndex];
 			hero.Interact(target);
+			Tile tile = Players[args.user_id - 1].Tiles[pieceIndex];
+			Tile target = Players[Constants.USER_ID - 1].Tiles[targetIndex];
+			tile.Interact(target);
 		}
 		else if (args.user_id == Constants.USER_ID)
 		{
