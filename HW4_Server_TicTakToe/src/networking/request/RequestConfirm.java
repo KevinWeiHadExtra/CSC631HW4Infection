@@ -14,7 +14,7 @@ public class RequestConfirm extends GameRequest {
     private ResponseConfirm responseReady;
 
     public RequestConfirm() {
-        responses.add(responseConfirm = new ResponseConfirm());
+        responses.add(responseReady = new ResponseConfirm());
     }
 
     @Override

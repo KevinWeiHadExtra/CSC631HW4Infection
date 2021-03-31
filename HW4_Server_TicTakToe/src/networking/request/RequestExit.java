@@ -13,7 +13,7 @@ public class RequestExit extends GameRequest {
     private ResponseExit responseLeave;
 
     public RequestExit() {
-        responses.add(responseExit = new ResponseExit());
+        responses.add(responseLeave = new ResponseExit());
     }
 
     @Override
